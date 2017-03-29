@@ -61,20 +61,18 @@ class Parser(Inputparser):
                     break
             if (not ind):
                 keys_list.append(key_str)
-            keys_list = keys_list
 
         return keys_list
 
     @staticmethod
     def find_hostrequest(some_lis):
-        """ Looks for last non key item in list (without '-')
+        """ Looks for last item in hostfiles list
             saves it as class variable """
         if (len(some_lis) > 1):
             hostrequest = some_lis[-1]
         else:
             print ('No File/directories or \'username@hostname:/dir\' parameter')
             exit(1)
-            hostrequest = ''
 
         some_lis.remove(hostrequest)
         return some_lis, hostrequest
