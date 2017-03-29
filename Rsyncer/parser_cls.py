@@ -31,15 +31,16 @@ class Parser(Inputparser):
             hostname = hostname[delim_ind.end():]
             delim_ind = re.search("[.,:@]", hostname)
             port = hostname[: delim_ind.start()]
+        if(username == 'root'):
+            remote_dir = '//root'
+        else:
+            remote_dir = '/home/' + username
         if (':/' in hostname):
             id_end = hostname.rfind(':')
-            remote_dir = '/home/'+username+ hostname[id_end + 1:]
+            remote_dir += hostname[id_end + 1:]
         else:
             id_end = len(hostname)
-            if(username == 'root'):
-                remote_dir = '//root'
-            else:
-                remote_dir = '/home/' + username
+            
         host_id = hostname[delim_ind.end():id_end]
 
         data_dict_host = {'remote_dir': remote_dir,
