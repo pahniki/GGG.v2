@@ -25,7 +25,7 @@ class Inputparser:
         parser.add_argument('-pass', action="store", dest="userpass", type=str)
         parser.add_argument('-e', action="store", dest='connection', type=str)
         parser.add_argument('files', type=str, help='list of files and dirrs to copy', nargs='*')
-        known, unknown = parser.parse_known_args(['-PavSzqi','-process','-pass=noOneLiveForever','-h','/dir','some','file','[root:port@hostname:/not\ dir another@hostname:/dir andone@more:/dir]'])
+        known, unknown = parser.parse_known_args()
         # Fill arguments in group
         unknown = set(unknown)
         for i in unknown:
