@@ -104,3 +104,5 @@ class Parser(Inputparser):
         print('Done')
 
         return data_dict
+
+Parser.main()
