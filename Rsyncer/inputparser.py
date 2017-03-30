@@ -7,6 +7,8 @@ stored in output_dict['host_files']
 Password to remote host located in output_dict['password']
 '''
 import argparse
+import utility_cls
+
 
 class Inputparser:
     """ First stage parser. Using 'argparse' module to pull out all valid parameters."""
@@ -41,4 +43,6 @@ class Inputparser:
         if known.process:
             keys.append('-process')
         output_dict.update({'host_files': filesgarbage, 'keys': keys, 'password': known.userpass})
+        logger = utility_cls.rsynclog.logger_init('inputparser')
+        utility_cls.rsynclog.info_log(logger, "Input parser output: {}".format(output_dict))
         return output_dict, unknownkeys
