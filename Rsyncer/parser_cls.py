@@ -2,6 +2,8 @@ import re
 from inputparser import Inputparser
 from utility_cls import Utility
 from remote_request_cls import Remote_request_cls
+import rsync_logger
+
 
 
 class Parser(Inputparser):
@@ -18,7 +20,7 @@ class Parser(Inputparser):
             if (item.startswith('-')):
                 if (all(ch in SINGLE_PARAM for ch in Utility.gen(item[1:]))):
                     key_set.update([('-' + char) for char in item[1:]])
-
+        rsync_logger.customlogger.info_log(rsync_logger.customlogger(), "Parsed Keys from mess: {}".format(key_set))
         return (list(key_set))
 
     @staticmethod
@@ -46,23 +48,23 @@ class Parser(Inputparser):
         data_dict_host = {'remote_dir': remote_dir,
                           'username': username, 'ip': host_id,
                           'port': port}
-
+        rsync_logger.customlogger.info_log(rsync_logger.customlogger(), "Parsed remoute host: {}".format(data_dict_host))
         return data_dict_host
 
     @staticmethod
     def port_to_keys(keys_list, port):
         """ Add '-p port' to a -e params, if port exist """
         if (port):
-            ind = 0
+            index = 0
             key_str = '-e \'ssh -p {}\''.format(port)
             for item in Utility.gen(keys_list):
                 if (item.startswith('-e')):
-                    ind = keys_list.index(item)
-                    keys_list[ind] = key_str
+                    index = keys_list.index(item)
+                    keys_list[index] = key_str
                     break
-            if (not ind):
+            if (not index):
                 keys_list.append(key_str)
-
+        rsync_logger.customlogger.info_log(rsync_logger.customlogger(),"Parsed remoute host: {}".format(keys_list))
         return keys_list
 
     @staticmethod
@@ -72,10 +74,12 @@ class Parser(Inputparser):
         if (len(some_lis) > 1):
             hostrequest = some_lis[-1]
         else:
-            print ('No File/directories or \'username@hostname:/dir\' parameter')
+            #print ('No File/directories or \'username@hostname:/dir\' parameter')
+            rsync_logger.customlogger.debug_log(rsync_logger.customlogger(), 'No File/directories or \'username@hostname:/dir\' parameter')
             exit(1)
 
         some_lis.remove(hostrequest)
+        rsync_logger.customlogger.debug_log(rsync_logger.customlogger(),'Last item in hostfiles {}'.format(hostrequest))
         return some_lis, hostrequest
 
     @staticmethod
@@ -97,5 +101,6 @@ class Parser(Inputparser):
         if (not data_dict.has_key('client')):
             data_dict.update({'client': []})
         data_dict['client'].append(client)
+        print('Done')
 
         return data_dict
