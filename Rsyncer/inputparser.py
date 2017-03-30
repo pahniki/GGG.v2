@@ -7,6 +7,8 @@ stored in output_dict['host_files']
 Password to remote host located in output_dict['password']
 '''
 import argparse
+import rsync_logger
+
 
 class Inputparser:
     """ First stage parser. Using 'argparse' module to pull out all valid parameters."""
@@ -23,7 +25,7 @@ class Inputparser:
         parser.add_argument('-pass', action="store", dest="userpass", type=str)
         parser.add_argument('-e', action="store", dest='connection', type=str)
         parser.add_argument('files', type=str, help='list of files and dirrs to copy', nargs='*')
-        known, unknown = parser.parse_known_args()
+        known, unknown = parser.parse_known_args(['-PavSzqi','-process','-pass=noOneLiveForever','-h','/dir','some','file','[root:port@hostname:/not\ dir another@hostname:/dir andone@more:/dir]'])
         # Fill arguments in group
         unknown = set(unknown)
         for i in unknown:
@@ -41,4 +43,7 @@ class Inputparser:
         if known.process:
             keys.append('-process')
         output_dict.update({'host_files': filesgarbage, 'keys': keys, 'password': known.userpass})
+        rsync_logger.customlogger.info_log(rsync_logger.customlogger(), "Input parser output: {}".format(output_dict))
         return output_dict, unknownkeys
+
+
