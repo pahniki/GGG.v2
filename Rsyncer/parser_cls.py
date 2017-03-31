@@ -78,7 +78,6 @@ class Parser(Inputparser):
     @staticmethod
     def form_dict(hostrequest):
         """ Form a { remoterequest : password } dictionary from a list """
-        # hostrequest = re.split('(?<!\\\\)\s+', hostrequest)
         if (len(hostrequest) > 1):
             host_dict = dict()
             pass_len = len('-pass=')
@@ -110,7 +109,7 @@ class Parser(Inputparser):
         """ Head method of the Parser class. Calls all contained methods to modify and parse input data.
             :returns dict """
 
-        Utility.rsynclog.info_log(logger, '\n###Rsync start.###')
+        Utility.rsynclog.info_log(logger, '\n###Rsyncer.py start.###')
 
         data_dict, unknownlist = Parser.inputparse()
         hostnamedict = Parser.find_hostrequest(data_dict['hosts'])
