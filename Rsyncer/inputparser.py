@@ -26,13 +26,9 @@ class Inputparser:
         keys = []
         parser.add_argument('-process', action="store_true", default=False)
         parser.add_argument('-e', action="store", dest='connection', type=str)
-        known, unknown = parser.parse_known_args(['-Pa','-process','/dir','file','username@remote:/dirdir'])
-        # ['-PavSzqi', '-process', '-pass=noOneLiveForever',
-        #  '-h', '/dir', 'some', 'file',
-        #  '[-pass=1234 root:port@hostname:/not\ dir -pass=123 another:2@hostname:/dir andone@more:/dir -pass=urmama69]']
+        known, unknown = parser.parse_known_args()
+        
         # Fill arguments in group
-        unknown = unknown
-
         unknown, hosts = Inputparser.get_hosts(unknown)
         unknown, filesgarbage = Inputparser.get_files(unknown)
         unknown = set(unknown)
@@ -57,6 +53,7 @@ class Inputparser:
 
     @staticmethod
     def get_hosts(some_list):
+        """ Parse host names out of list """
         if (some_list[-1] == ']'):
             index = some_list.index('[')
             host_list = some_list[index + 1:-1]
@@ -74,6 +71,7 @@ class Inputparser:
 
     @staticmethod
     def get_files(some_list):
+        """ Splits unknown keys from files. """
         unknown = filter(lambda x: x.startswith('-'), some_list)
         files = filter(lambda x: not x.startswith('-'), some_list)
         return unknown, files
