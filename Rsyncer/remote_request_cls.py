@@ -23,7 +23,7 @@ class Remote_request():
 
     def rsync_cmd_deco_deco(DEBUG):
         """ Decorator for DEBUG purposes. 
-            Hides 'subprocess' work result and print rsync cmd if Thrue. """
+            Hides 'subprocess' work result and print rsync cmd if True. """
 
         def resync_cmd_deco(func):
             if (DEBUG == True):
