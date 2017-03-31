@@ -12,6 +12,7 @@ from utility_cls import Utility
 logger = Utility.rsynclog.logger_init('inputparser')
 
 
+
 class Inputparser:
     """ First stage parser. Using 'argparse' module to pull out all valid parameters."""
 
