@@ -13,10 +13,12 @@ Should check if path exists on remote host and if not then create it.
 Usage.
 How the one can use this script. It has pretty much the same usage as nomral 'rsync' cmd with few exeptions,
 examples:
+
 like that '(.,):80' u will be able to choose port 80 for ssh connection,
   -  python rsyncer.py /dir file1.txt username:80@remotehost:/dir
 or u can use 'rsync' to transer data to a miltiple remote hosts like this,
   -  python rsyncer.py /dir file1.txt [ username1:80@remotehost1:/dir1 username2@remotehost2:/dir2 ]
+
 Remember, if you are going to use the last case, u have to separate perentheses with spaces (' [ ' and ' ] '), or u will get an error otherwise.
 
 We are currently working on interactive console 'help' to make our application more userfirendly.
