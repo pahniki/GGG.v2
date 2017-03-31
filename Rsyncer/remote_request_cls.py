@@ -15,7 +15,6 @@ class Remote_request():
         self.adress = data_dict['ip']
         self.port = data_dict['port']
         self.rem_dir = data_dict['remote_dir']
-        # self.password = data_dict['password']
         self.password = password
         self.ind = Remote_request.ind
         Remote_request.ind += 1
