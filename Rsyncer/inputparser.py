@@ -56,10 +56,14 @@ class Inputparser:
     def try_get_hosts(some_list):
         try:
             Inputparser.get_hosts(some_list)
+        except IndexError as inderr:
+            print 'Empty parameters.'
+            Utility.rsynclog.debug_log(logger, inderr)
+            exit(1)
         except:
-            Utility.rsynclog.info_log(logger, 'Incorrect parameteres!!')
+            Utility.rsynclog.info_log(logger, 'Incorrect parameters!!')
             Utility.rsynclog.debug_log(logger, some_list)
-            print 'Incorrect parameteres!!'
+            print 'Incorrect parameters!!'
             exit(1)
     
     @staticmethod
