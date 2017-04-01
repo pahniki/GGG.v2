@@ -30,7 +30,7 @@ class Inputparser:
         known, unknown = parser.parse_known_args()
         
         # Fill arguments in group
-        unknown, hosts = Inputparser.get_hosts(unknown)
+        unknown, hosts = Inputparser.try_get_hosts(unknown)
         unknown, filesgarbage = Inputparser.get_files(unknown)
         unknown = set(unknown)
         for i in unknown:
@@ -52,6 +52,16 @@ class Inputparser:
         Utility.rsynclog.debug_log(logger, output_dict)
         return output_dict, unknownkeys
 
+    @staticmethod
+    def try_get_hosts(some_list):
+        try:
+            Inputparser.get_hosts(some_list)
+        except:
+            Utility.rsynclog.info_log(logger, 'Incorrect parameteres!!')
+            Utility.rsynclog.debug_log(logger, some_list)
+            print 'Incorrect parameteres!!'
+            exit(1)
+    
     @staticmethod
     def get_hosts(some_list):
         """ Parse host names out of list """
