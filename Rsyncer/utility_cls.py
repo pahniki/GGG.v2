@@ -82,7 +82,6 @@ class Utility:
         def debug_log(logger, infostr):
             ''' Log debug message '''
             logger.debug(infostr)
-
             #########################Helper section#########################
 
     class helper:
