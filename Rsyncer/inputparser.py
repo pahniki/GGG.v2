@@ -7,42 +7,84 @@ stored in output_dict['host_files']
 Password to remote host located in output_dict['password']
 '''
 import argparse
-import utility_cls
+from utility_cls import Utility
+
+logger = Utility.rsynclog.logger_init('inputparser')
+
 
 
 class Inputparser:
     """ First stage parser. Using 'argparse' module to pull out all valid parameters."""
+
     @staticmethod
     def inputparse():
         """ Static method which draws out all valid parameters. Based on 'argparse' module. Returns dict,list """
         output_dict = {}
         single_param = tuple('PavSzqih')
         parser = argparse.ArgumentParser(add_help=False)
-        filesgarbage = []
         unknownkeys = []
         keys = []
         parser.add_argument('-process', action="store_true", default=False)
-        parser.add_argument('-pass', action="store", dest="userpass", type=str)
         parser.add_argument('-e', action="store", dest='connection', type=str)
-        parser.add_argument('files', type=str, help='list of files and dirrs to copy', nargs='*')
         known, unknown = parser.parse_known_args()
+        
         # Fill arguments in group
+        unknown, hosts = Inputparser.try_get_hosts(unknown)
+        unknown, filesgarbage = Inputparser.get_files(unknown)
         unknown = set(unknown)
         for i in unknown:
             if i[1:] in single_param:
-                    keys.append(i)
+                keys.append(i)
             else:
                 unknownkeys.append(i)
-        for i in known.files:
-            filesgarbage.append(i)
+
         if known.connection == 'ssh':
-            print(known.connection)
             keys.append('-e ssh')
         elif known.connection == 'rsh':
             keys.append('-e rsh')
+
         if known.process:
             keys.append('-process')
-        output_dict.update({'host_files': filesgarbage, 'keys': keys, 'password': known.userpass})
-        logger = utility_cls.rsynclog.logger_init('inputparser')
-        utility_cls.rsynclog.info_log(logger, "Input parser output: {}".format(output_dict))
+        output_dict.update({'host_files': filesgarbage, 'keys': keys, 'hosts': hosts})
+
+        Utility.rsynclog.debug_log(logger, output_dict)
         return output_dict, unknownkeys
+
+    @staticmethod
+    def try_get_hosts(some_list):
+        try:
+            return Inputparser.get_hosts(some_list)
+        except IndexError as inderr:
+            print 'Empty parameters.'
+            Utility.rsynclog.debug_log(logger, inderr)
+            exit(1)
+        except:
+            Utility.rsynclog.info_log(logger, 'Incorrect parameters!!')
+            Utility.rsynclog.debug_log(logger, some_list)
+            print 'Incorrect parameters!!'
+            exit(1)
+    
+    @staticmethod
+    def get_hosts(unknown_list):
+        """ Parse host names out of list """
+        if (unknown_list[-1] == ']'):
+            index = unknown_list.index('[')
+            host_list = unknown_list[index + 1:-1]
+            unknown_list = unknown_list[:index]
+        else:
+            if(unknown_list[-1].startswith('-pass=')):
+                host_list = unknown_list[-2:]
+                unknown_list.remove(unknown_list[-1])
+                unknown_list.remove(unknown_list[-1])
+            else:
+                host_list = [unknown_list[-1], ]
+                unknown_list.remove(unknown_list[-1])
+
+        return unknown_list, host_list
+
+    @staticmethod
+    def get_files(some_list):
+        """ Splits unknown keys from files. """
+        unknown = filter(lambda x: x.startswith('-'), some_list)
+        files = filter(lambda x: not x.startswith('-'), some_list)
+        return unknown, files
