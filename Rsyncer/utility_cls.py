@@ -1,7 +1,4 @@
-'''
-Collection of used utilities
-'''
-
+# utility
 
 class Utility:
     @staticmethod
@@ -59,7 +56,6 @@ class Utility:
             logger = logging.getLogger(some_str)
             logger.setLevel(logging.INFO)
             logger.setLevel(logging.DEBUG)
-            logger.setLevel(logging.ERROR)
             handler = logging.FileHandler('rsyncer.log')
             formatter = logging.Formatter('[%(asctime)s] - %(name)11s - %(levelname)6s : %(message)s',datefmt='%d-%m-%y %H:%M')
             handler.setFormatter(formatter)
@@ -76,13 +72,15 @@ class Utility:
             ''' Log debug message '''
             logger.debug(infostr)
 
-        @staticmethod
-        def error_log(logger, infostr):
-            ''' Log debug message '''
-            logger.error(infostr)
-
     class helper:
         '''Helper object will raise help messages'''
+
+        @staticmethod
+        def usage_help():
+            print('usage: '
+                  'rsyncer.py [/dir file1 file2][-process][-e ssh][username:port@ip:/destination [-pass=PASS]][-PavSzq]\n'
+                  'Runs rsync application with input parameters. For more info go to main_help.')
+
         @staticmethod
         def main_help():
             print('All available keys:\n'
