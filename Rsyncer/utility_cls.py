@@ -83,6 +83,14 @@ class Utility:
     class helper:
         '''Helper object will raise help messages'''
         @staticmethod
+        def usage_help():
+            print('usage: '
+            'rsyncer.py [/dir file1 file2][-process][-e ssh][username:port@ip:/destination [-pass=PASS]][-PavSzq]\n'
+            'Runs rsync application with input parameters. For more info go to main_help.')
+
+
+
+        @staticmethod
         def main_help():
             print('All available keys:\n'
                   '-process                    If exists raise -process flag for rsync\n'
