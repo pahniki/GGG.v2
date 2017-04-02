@@ -1,6 +1,4 @@
-'''
-Collection of used utilities
-'''
+# utility
 
 class Utility:
     @staticmethod
@@ -58,7 +56,6 @@ class Utility:
             logger = logging.getLogger(some_str)
             logger.setLevel(logging.INFO)
             logger.setLevel(logging.DEBUG)
-            logger.setLevel(logging.ERROR)
             handler = logging.FileHandler('rsyncer.log')
             formatter = logging.Formatter('[%(asctime)s] - %(name)11s - %(levelname)6s : %(message)s',datefmt='%d-%m-%y %H:%M')
             handler.setFormatter(formatter)
@@ -74,11 +71,6 @@ class Utility:
         def debug_log(logger, infostr):
             ''' Log debug message '''
             logger.debug(infostr)
-
-        @staticmethod
-        def error_log(logger, infostr):
-            ''' Log debug message '''
-            logger.error(infostr)
 
     class helper:
         '''Helper object will raise help messages'''
