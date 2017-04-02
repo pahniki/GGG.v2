@@ -22,7 +22,6 @@ class Inputparser:
         output_dict = {}
         single_param = tuple('PavSzqih')
         parser = argparse.ArgumentParser(add_help=False)
-        filesgarbage = []
         unknownkeys = []
         keys = []
         parser.add_argument('-process', action="store_true", default=False)
@@ -40,7 +39,6 @@ class Inputparser:
                 unknownkeys.append(i)
 
         if known.connection == 'ssh':
-            print(known.connection)
             keys.append('-e ssh')
         elif known.connection == 'rsh':
             keys.append('-e rsh')
@@ -55,7 +53,7 @@ class Inputparser:
     @staticmethod
     def try_get_hosts(some_list):
         try:
-            Inputparser.get_hosts(some_list)
+            return Inputparser.get_hosts(some_list)
         except IndexError as inderr:
             print 'Empty parameters.'
             Utility.rsynclog.debug_log(logger, inderr)
@@ -67,22 +65,22 @@ class Inputparser:
             exit(1)
     
     @staticmethod
-    def get_hosts(some_list):
+    def get_hosts(unknown_list):
         """ Parse host names out of list """
-        if (some_list[-1] == ']'):
-            index = some_list.index('[')
-            host_list = some_list[index + 1:-1]
-            some_list = some_list[:index]
+        if (unknown_list[-1] == ']'):
+            index = unknown_list.index('[')
+            host_list = unknown_list[index + 1:-1]
+            unknown_list = unknown_list[:index]
         else:
-            if(some_list[-1].startswith('-pass=')):
-                host_list = some_list[-2:]
-                some_list.remove(some_list[-1])
-                some_list.remove(some_list[-1])
+            if(unknown_list[-1].startswith('-pass=')):
+                host_list = unknown_list[-2:]
+                unknown_list.remove(unknown_list[-1])
+                unknown_list.remove(unknown_list[-1])
             else:
-                host_list = [some_list[-1],]
-                some_list.remove(some_list[-1])
+                host_list = [unknown_list[-1], ]
+                unknown_list.remove(unknown_list[-1])
 
-        return some_list, host_list
+        return unknown_list, host_list
 
     @staticmethod
     def get_files(some_list):
