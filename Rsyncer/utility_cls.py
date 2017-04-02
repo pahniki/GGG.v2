@@ -56,8 +56,7 @@ class Utility:
             print (item)
             Utility.rsynclog.debug_log(logger,item)
 
-
-            #########################Logger section#########################
+        #########################Logger section#########################
 
     class rsynclog:
         '''

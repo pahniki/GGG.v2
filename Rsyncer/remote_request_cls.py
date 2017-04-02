@@ -6,7 +6,6 @@ from utility_cls import Utility
 
 logger = Utility.rsynclog.logger_init('remote_request_cls')
 
-
 class Remote_request():
     """ Produces objects for each remotehost machine """
     ind = 0
@@ -63,7 +62,7 @@ class Remote_request():
         ping_check = subprocess.Popen(['ping', '-c1', self.adress], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         out, err = ping_check.communicate()
         exitcode = ping_check.returncode
-
+        
         if not exitcode:
             print("Host {} is alive!".format(self.adress))
             s = socket.socket()
@@ -105,7 +104,6 @@ class Remote_request():
         exitcode = rsync_cmd.returncode
 
         print out
-
         return Response(self.short_adress, exitcode, out, err)
 
 

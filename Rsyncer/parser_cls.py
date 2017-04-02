@@ -64,6 +64,7 @@ class Parser(Inputparser):
         """  """
         if (not len(some_lis)):
             Utility.helper.error_msg(logger, some_lis, 'No File/directories or \'username@hostname:/dir\' parameter:')
+
         host_dict = Parser.form_dict(some_lis)
 
         return host_dict
