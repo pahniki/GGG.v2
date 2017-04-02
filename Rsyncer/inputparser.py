@@ -28,7 +28,6 @@ class Inputparser:
         parser.add_argument('-h', dest='help', action="store_true", default=False)
         known, unknown = parser.parse_known_args()
 
-        # ['-PazS', 'process', '/dir', 'file1', 'file2', '[', 'user1@host1:/dir', '-pass=123', 'user2@remote2:/dir2', ']'
         Inputparser.if_help(known.help)
 
         # Fill arguments in group
