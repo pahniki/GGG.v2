@@ -12,7 +12,6 @@ from utility_cls import Utility
 logger = Utility.rsynclog.logger_init('inputparser')
 
 
-
 class Inputparser:
     """ First stage parser. Using 'argparse' module to pull out all valid parameters."""
 
@@ -26,11 +25,16 @@ class Inputparser:
         keys = []
         parser.add_argument('-process', action="store_true", default=False)
         parser.add_argument('-e', action="store", dest='connection', type=str)
+        parser.add_argument('-h', dest='help', action="store_true", default=False)
         known, unknown = parser.parse_known_args()
-        
+
+        # ['-PazS', 'process', '/dir', 'file1', 'file2', '[', 'user1@host1:/dir', '-pass=123', 'user2@remote2:/dir2', ']'
+        Inputparser.if_help(known.help)
+
         # Fill arguments in group
         unknown, hosts = Inputparser.try_get_hosts(unknown)
         unknown, filesgarbage = Inputparser.get_files(unknown)
+        Inputparser.is_empty_files(filesgarbage)
         unknown = set(unknown)
         for i in unknown:
             if i[1:] in single_param:
@@ -55,15 +59,10 @@ class Inputparser:
         try:
             return Inputparser.get_hosts(some_list)
         except IndexError as inderr:
-            print 'Empty parameters.'
-            Utility.rsynclog.debug_log(logger, inderr)
-            exit(1)
+            Utility.helper.error_msg(logger, inderr, 'Empty parameters.')
         except:
-            Utility.rsynclog.info_log(logger, 'Incorrect parameters!!')
-            Utility.rsynclog.debug_log(logger, some_list)
-            print 'Incorrect parameters!!'
-            exit(1)
-    
+            Utility.helper.error_msg(logger, 'Incorrect parameters!!')
+
     @staticmethod
     def get_hosts(unknown_list):
         """ Parse host names out of list """
@@ -72,7 +71,7 @@ class Inputparser:
             host_list = unknown_list[index + 1:-1]
             unknown_list = unknown_list[:index]
         else:
-            if(unknown_list[-1].startswith('-pass=')):
+            if (unknown_list[-1].startswith('-pass=')):
                 host_list = unknown_list[-2:]
                 unknown_list.remove(unknown_list[-1])
                 unknown_list.remove(unknown_list[-1])
@@ -87,4 +86,16 @@ class Inputparser:
         """ Splits unknown keys from files. """
         unknown = filter(lambda x: x.startswith('-'), some_list)
         files = filter(lambda x: not x.startswith('-'), some_list)
+
         return unknown, files
+
+    @staticmethod
+    def is_empty_files(file_list):
+        if (not len(file_list)):
+            Utility.helper.error_msg(logger, file_list, 'No Files/directories entered.')
+
+    @staticmethod
+    def if_help(is_h):
+        if (is_h):
+            Utility.helper.main_help()
+            exit(0)

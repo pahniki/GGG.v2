@@ -34,15 +34,25 @@ class Utility:
 
     @staticmethod
     def rsync_all(data_dict):
+        response_list = list()
         for item in Utility.gen(data_dict['client']):
             keys = list()
             keys.extend(data_dict['keys'])
 
             item.pinger()
             keys = Utility.port_to_keys(keys, item.port)
-            item.rsync_cmd(keys, data_dict['host_files'])
+            response = item.try_rsync_cmd(keys, data_dict['host_files'])
+            response_list.append(response)
 
-            #########################Logger section#########################
+        return response_list
+
+    @staticmethod
+    def print_responses(response_list):
+        for index,item in enumerate(Utility.gen(response_list)):
+            print ('Response {} went success : {}'.format(index,item.is_success))
+
+
+        #########################Logger section#########################
 
     class rsynclog:
         '''
@@ -57,7 +67,8 @@ class Utility:
             logger.setLevel(logging.INFO)
             logger.setLevel(logging.DEBUG)
             handler = logging.FileHandler('rsyncer.log')
-            formatter = logging.Formatter('[%(asctime)s] - %(name)11s - %(levelname)6s : %(message)s',datefmt='%d-%m-%y %H:%M')
+            formatter = logging.Formatter('[%(asctime)s] - %(name)11s - %(levelname)6s : %(message)s',
+                                          datefmt='%d-%m-%y %H:%M')
             handler.setFormatter(formatter)
             logger.addHandler(handler)
             return logger
@@ -72,3 +83,62 @@ class Utility:
             ''' Log debug message '''
             logger.debug(infostr)
 
+            #########################Helper section#########################
+
+    class helper:
+        '''Helper object will raise help messages'''
+
+        @staticmethod
+        def usage_help():
+            print('\n   usage:   '
+                  'rsyncer.py [/dir file1 file2][-process][-e ssh][username:port@ip:/destination [-pass=PASS]][-PavSzq]\n\n'
+                  'Runs rsync application with input parameters. For more info use "rsyncer.py -h".\n')
+
+        @staticmethod
+        def main_help():
+            Utility.helper.usage_help()
+            print('All available keys:\n'
+                  '-process                    If exists raise -process flag for rsync\n'
+                  '-pass=[Password]            Password for connection to remote host\n'
+                  '-e [connection type]        Connection type ssh or rsh\n'
+                  '-P                          Analog rsync --partial --progress\n'
+                  '-a                          Archive mode\n'
+                  '-v                          Verbose input\n'
+                  '-S                          Parse argument files\n'
+                  '-z                          Compress data stream\n'
+                  '-q                          Quiet input\n'
+
+                  'Single remoute host can be entered without [...] brackets.\n'
+                  'Multiple remoute hosts should be entered as list in [...] brackets.\n '
+                  '\n'
+                  '!!After [ and before ] brackets spaces are  necessary!!\n'
+                  '\n'
+                  'Example: \n'
+                  'rsyncer.py -Pa /dir file1 [ username1@remote1 -pass=123 username2@remote2 username3@remote3 -pass=qwe ]\n'
+                  'Valid separators between username and port are: comma, spot, colon (,.:)\n'
+                  'Examples: rsyncer.py /usr root@host\n'
+                  '          rsyncer.py /usr/wildcard* file3.avi root,22@hostname:/junk')
+
+        @staticmethod
+        def error_msg(logger, err_msg, info_msg=''):
+            print ('### {} :<').format(info_msg)
+            if (info_msg):
+                Utility.rsynclog.info_log(logger, info_msg)
+            if (err_msg):
+                Utility.rsynclog.debug_log(logger, err_msg)
+            Utility.helper.usage_help()
+            exit(1)
+
+        @staticmethod
+        def connection_type_help():
+            print('Something goes wrong. Try -e ssh, -e rsh or use help.')
+
+        @staticmethod
+        def multiple_host_help():
+            print('Something goes wrong. Spaces are  necessary after open and before closed brackets.\n'
+                  'For more information use help\n'
+                  'Example: [ username1@remote1 -pass=123 username2@remote2 username3@remote3 -pass=qwe ]')
+
+        @staticmethod
+        def random_help():
+            print('Oops, something goes wrong. Try to use help.')

@@ -1,14 +1,17 @@
 import subprocess
 import os
 import socket
+import time
+from utility_cls import Utility
 
+logger = Utility.rsynclog.logger_init('remote_request_cls')
 
 class Remote_request():
     """ Produces objects for each remotehost machine """
     ind = 0
     inst_array = list()
 
-    def __init__(self, hostname, password , try_hostrequest_parse):
+    def __init__(self, hostname, password, try_hostrequest_parse):
         """Constructor"""
         data_dict = try_hostrequest_parse(hostname)
         self.username = data_dict['username']
@@ -27,7 +30,10 @@ class Remote_request():
         def resync_cmd_deco(func):
             if (DEBUG == True):
                 def wrapper(self, keys, files):
-                    print ('rsync -r ' + ' '.join(keys) + ' ' + ' '.join(files) + ' ' + self.full_adress)
+                    print ('rsync -r ' + ' '.join(keys) + ' ' + ' '.join(files) + ' ' + self.full_adress
+                           + '  -pass=' + self.password)
+                    res_obj = Response(0)
+                    print res_obj
 
                 return wrapper
             else:
@@ -45,7 +51,6 @@ class Remote_request():
                 '   port: {}').format(Remote_request.ind, self.username, self.adress, self.rem_dir, self.password,
                                       self.port))
 
-
     def checker(self):
         """check if directory exist and create it if so"""
         dir_check = os.system("ssh {0}@{1} '[ -d {2} ]'".format(self.username, self.adress, self.remote_dir))
@@ -54,8 +59,12 @@ class Remote_request():
 
     def pinger(self):
         """Check connection to remote machine and ssh enable for chosen port"""
-        ping_check = os.system("ping -c3 {}".format(self.adress))
-        if not ping_check:
+        ping_check = subprocess.Popen(['ping','-c1',self.adress],stdout=subprocess.PIPE,stderr=subprocess.PIPE)
+        out,err = ping_check.communicate()
+        exitcode=ping_check.returncode
+
+        # ping_check = os.system("ping -c1 {}".format(self.adress))
+        if not exitcode:
             print("Host {} is alive!".format(self.adress))
             s = socket.socket()
             if (not self.port):
@@ -76,10 +85,40 @@ class Remote_request():
     def passwordless_con(self):
         pass
 
+    def try_rsync_cmd(self,keys,files):
+        """ try-except for rsync_cmd function """
+        try:
+            return self.rsync_cmd(keys,files)
+        except:
+            Utility.helper.error_msg(logger,'\'rsync\' command error','\'rsync\' command could not execute.')
+
     @rsync_cmd_deco_deco(DEBUG=False)
     def rsync_cmd(self, keys, files):
         """Execute rsync command"""
         rsync_cmd = subprocess.Popen(['rsync', '-r'] + keys + files + [self.full_adress, ],
                                      stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         out, err = rsync_cmd.communicate()
-        print out, err
+        exitcode = rsync_cmd.returncode
+
+        print out
+        
+        return Response(exitcode, out, err)
+
+
+class Response:
+    index = 0
+
+    def __init__(self, exitcode, out='', err=''):
+        self.name = 'ro.{}-{}'.format(str(int(time.time())), str(Response.index))
+        Response.index += 1
+
+        self.exitcode = exitcode
+        self.out = out
+        self.err = err
+
+    @property
+    def is_success(self):
+        return (not self.exitcode and not self.err and not 'exit' in self.out.lower())
+
+    def __repr__(self):
+        return ('{} Success: {}'.format(self.name, str(self.is_success)))

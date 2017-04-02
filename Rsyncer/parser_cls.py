@@ -13,7 +13,7 @@ class Parser(Inputparser):
     @staticmethod
     def keys_parse(input_list):
         """ Fill the key_list with parameters for rsync. """
-        SINGLE_PARAM = tuple('PavSzqih')
+        SINGLE_PARAM = tuple('PavSzqi')
         key_set = set()
 
         for item in Utility.gen(input_list):
@@ -29,10 +29,7 @@ class Parser(Inputparser):
         try:
             return Parser.hostrequest_parse(hostname)
         except:
-            Utility.rsynclog.info_log(logger, 'Incorrect remote request form:')
-            Utility.rsynclog.debug_log(logger, '\'{}\''.format(hostname))
-            print ('Incorrect remote request form!')
-            exit(1)
+            Utility.helper.error_msg(logger, hostname, 'Incorrect remote request form!')
 
     @staticmethod
     def hostrequest_parse(hostname):
@@ -66,11 +63,7 @@ class Parser(Inputparser):
     def find_hostrequest(some_lis):
         """  """
         if (not len(some_lis)):
-            Utility.rsynclog.info_log(logger, 'No File/directories or \'username@hostname:/dir\' parameter:')
-            Utility.rsynclog.info_log(logger, some_lis)
-            print ('No File/directories or \'username@hostname:/dir\' parameter')
-            exit(1)
-
+            Utility.helper.error_msg(logger,some_lis,'No File/directories or \'username@hostname:/dir\' parameter:')
         host_dict = Parser.form_dict(some_lis)
 
         return host_dict
