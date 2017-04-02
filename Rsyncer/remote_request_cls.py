@@ -3,21 +3,37 @@ import os
 import socket
 
 
-class Remote_request_cls():
+class Remote_request():
     """ Produces objects for each remotehost machine """
     ind = 0
     inst_array = list()
 
-    def __init__(self, data_dict):
+    def __init__(self, hostname, password , try_hostrequest_parse):
         """Constructor"""
+        data_dict = try_hostrequest_parse(hostname)
         self.username = data_dict['username']
         self.adress = data_dict['ip']
         self.port = data_dict['port']
         self.rem_dir = data_dict['remote_dir']
-        self.password = data_dict['password']
-        self.ind = Remote_request_cls.ind
-        Remote_request_cls.ind += 1
+        self.password = password
+        self.ind = Remote_request.ind
+        Remote_request.ind += 1
         self.full_adress = (self.username + '@' + self.adress + ':' + self.rem_dir)
+
+    def rsync_cmd_deco_deco(DEBUG):
+        """ Decorator for DEBUG purposes. 
+            Hides 'subprocess' work result and print rsync cmd if True. """
+
+        def resync_cmd_deco(func):
+            if (DEBUG == True):
+                def wrapper(self, keys, files):
+                    print ('rsync -r ' + ' '.join(keys) + ' ' + ' '.join(files) + ' ' + self.full_adress)
+
+                return wrapper
+            else:
+                return func
+
+        return resync_cmd_deco
 
     def self_print(self):
         print (('###Request object number {}.\n'
@@ -26,8 +42,9 @@ class Remote_request_cls():
                 '   remote adress: {}\n'
                 '   remote dir: {}\n'
                 '   password: {}\n'
-                '   port: {}').format(Remote_request_cls.ind, self.username, self.adress, self.rem_dir, self.password,
+                '   port: {}').format(Remote_request.ind, self.username, self.adress, self.rem_dir, self.password,
                                       self.port))
+
 
     def checker(self):
         """check if directory exist and create it if so"""
@@ -59,14 +76,10 @@ class Remote_request_cls():
     def passwordless_con(self):
         pass
 
+    @rsync_cmd_deco_deco(DEBUG=False)
     def rsync_cmd(self, keys, files):
         """Execute rsync command"""
         rsync_cmd = subprocess.Popen(['rsync', '-r'] + keys + files + [self.full_adress, ],
-                                     stdout=subprocess.PIPE,stderr = subprocess.PIPE)
+                                     stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         out, err = rsync_cmd.communicate()
-        print out
-        print err
-
-    @classmethod
-    def self_create(cls, data_dict):
-        Remote_request_cls.inst_array.append(Remote_request_cls(data_dict))
+        print out, err
