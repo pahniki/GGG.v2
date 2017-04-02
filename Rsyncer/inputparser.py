@@ -55,7 +55,7 @@ class Inputparser:
     @staticmethod
     def try_get_hosts(some_list):
         try:
-            Inputparser.get_hosts(some_list)
+            return Inputparser.get_hosts(some_list)
         except IndexError as inderr:
             print 'Empty parameters.'
             Utility.rsynclog.debug_log(logger, inderr)
