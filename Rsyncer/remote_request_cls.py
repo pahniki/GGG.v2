@@ -6,6 +6,7 @@ from utility_cls import Utility
 
 logger = Utility.rsynclog.logger_init('remote_request_cls')
 
+
 class Remote_request():
     """ Produces objects for each remotehost machine """
     ind = 0
@@ -21,6 +22,7 @@ class Remote_request():
         self.password = password
         self.ind = Remote_request.ind
         Remote_request.ind += 1
+        self.short_adress = self.username + '@' + self.adress
         self.full_adress = (self.username + '@' + self.adress + ':' + self.rem_dir)
 
     def rsync_cmd_deco_deco(DEBUG):
@@ -34,7 +36,6 @@ class Remote_request():
                            + '  -pass=' + self.password)
                     res_obj = Response(0)
                     print res_obj
-
                 return wrapper
             else:
                 return func
@@ -59,11 +60,10 @@ class Remote_request():
 
     def pinger(self):
         """Check connection to remote machine and ssh enable for chosen port"""
-        ping_check = subprocess.Popen(['ping','-c1',self.adress],stdout=subprocess.PIPE,stderr=subprocess.PIPE)
-        out,err = ping_check.communicate()
-        exitcode=ping_check.returncode
+        ping_check = subprocess.Popen(['ping', '-c1', self.adress], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        out, err = ping_check.communicate()
+        exitcode = ping_check.returncode
 
-        # ping_check = os.system("ping -c1 {}".format(self.adress))
         if not exitcode:
             print("Host {} is alive!".format(self.adress))
             s = socket.socket()
@@ -74,23 +74,27 @@ class Remote_request():
             try:
                 s.bind((self.adress, port))
             except:
-                print("SSH is enabled on host {}".format(self.adress))
+                print("SSH is enabled on port {}".format(port))
             else:
-                print("Host {} is not available by SSH".format(self.adress))
-                exit(1)
+                err = "Port {} is not available by SSH".format(port)
+                print(err)
+                return Response(self.short_adress, exitcode, out, err)
         else:
-            print("Host {} is dead!".format(self.adress))
-            exit(1)
+            err = "Host {} is dead!".format(self.adress)
+            print(err)
+            return Response(self.short_adress, exitcode, out, err)
 
     def passwordless_con(self):
         pass
 
-    def try_rsync_cmd(self,keys,files):
+    def try_rsync_cmd(self, keys, files):
         """ try-except for rsync_cmd function """
         try:
-            return self.rsync_cmd(keys,files)
+            return self.rsync_cmd(keys, files)
         except:
-            Utility.helper.error_msg(logger,'\'rsync\' command error','\'rsync\' command could not execute.')
+            Utility.helper.error_msg(logger, '\'rsync\' command error', '\'rsync\' command could not execute.',
+                                     exitcode=0)
+            return Response(self.short_adress, 1, '', 'rsync execution error')
 
     @rsync_cmd_deco_deco(DEBUG=False)
     def rsync_cmd(self, keys, files):
@@ -101,17 +105,17 @@ class Remote_request():
         exitcode = rsync_cmd.returncode
 
         print out
-        
-        return Response(exitcode, out, err)
+
+        return Response(self.short_adress, exitcode, out, err)
 
 
 class Response:
     index = 0
 
-    def __init__(self, exitcode, out='', err=''):
+    def __init__(self, remote_host, exitcode, out='', err=''):
         self.name = 'ro.{}-{}'.format(str(int(time.time())), str(Response.index))
         Response.index += 1
-
+        self.remote_host = remote_host
         self.exitcode = exitcode
         self.out = out
         self.err = err
@@ -121,4 +125,7 @@ class Response:
         return (not self.exitcode and not self.err and not 'exit' in self.out.lower())
 
     def __repr__(self):
-        return ('{} Success: {}'.format(self.name, str(self.is_success)))
+        message = 'Response to {}. Success : {}'.format(self.remote_host, str(self.is_success))
+        if (self.err):
+            message += ('\nError: ' + self.err.split('\n', 1)[0])
+        return message
