@@ -91,8 +91,8 @@ class Inputparser:
     @staticmethod
     def is_empty_files(file_list):
         if (not len(file_list)):
-            Utility.helper.error_msg(logger, file_list, 'No Files/directories entered.')
-
+            Utility.helper.error_msg(logger, file_list, 'No Files/directories or requests were entered.')
+            
     @staticmethod
     def if_help(is_h):
         if (is_h):

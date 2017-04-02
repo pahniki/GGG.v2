@@ -63,7 +63,8 @@ class Parser(Inputparser):
     def find_hostrequest(some_lis):
         """  """
         if (not len(some_lis)):
-            Utility.helper.error_msg(logger,some_lis,'No File/directories or \'username@hostname:/dir\' parameter:')
+            Utility.helper.error_msg(logger, some_lis, 'No File/directories or \'username@hostname:/dir\' parameter:')
+
         host_dict = Parser.form_dict(some_lis)
 
         return host_dict
@@ -101,9 +102,6 @@ class Parser(Inputparser):
     def main():
         """ Head method of the Parser class. Calls all contained methods to modify and parse input data.
             :returns dict """
-
-        Utility.rsynclog.info_log(logger, '\n###Rsyncer.py start.###')
-
         data_dict, unknownlist = Parser.inputparse()
         hostnamedict = Parser.find_hostrequest(data_dict['hosts'])
         data_dict['keys'] += Parser.keys_parse(unknownlist)
