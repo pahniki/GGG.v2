@@ -1,4 +1,6 @@
 # utility
+import os
+
 
 class Utility:
     @staticmethod
@@ -54,9 +56,9 @@ class Utility:
         logger = Utility.rsynclog.logger_init('print_response')
         for index, item in enumerate(Utility.gen(response_list)):
             print (item)
-            Utility.rsynclog.debug_log(logger,item)
+            Utility.rsynclog.debug_log(logger, item)
 
-        #########################Logger section#########################
+            #########################Logger section#########################
 
     class rsynclog:
         '''
