@@ -50,7 +50,6 @@ class Remote_request():
                            + '  -pass=' + self.password)
                     res_obj = Response(0)
                     print res_obj
-
                 return wrapper
             else:
                 return func
@@ -78,7 +77,7 @@ class Remote_request():
         ping_check = subprocess.Popen(['ping', '-c1', self.adress], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         out, err = ping_check.communicate()
         exitcode = ping_check.returncode
-
+        
         if not exitcode:
             print("Host {} is alive!".format(self.adress))
             s = socket.socket()
@@ -158,6 +157,7 @@ class Remote_request():
             Utility.helper.error_msg(logger, '\'rsync\' command error', '\'rsync\' command could not execute.',
                                      exitcode=0)
             return Response(self.short_adress, 1, err='rsync execution error')
+
 
     @rsync_cmd_deco_deco(DEBUG=False)
     def rsync_cmd(self, keys, files):
