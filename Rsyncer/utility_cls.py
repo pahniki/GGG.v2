@@ -1,4 +1,6 @@
 # utility
+import os
+
 
 class Utility:
     @staticmethod
@@ -56,7 +58,7 @@ class Utility:
             print (item)
             Utility.rsynclog.debug_log(logger,item)
 
-        #########################Logger section#########################
+            #########################Logger section#########################
 
     class rsynclog:
         '''

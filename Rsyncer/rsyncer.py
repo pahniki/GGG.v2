@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 
 # Main script , provides a beautiful/userfriendly name for executing our ap.
-
 from parser_cls import Parser
 from utility_cls import Utility
 
@@ -12,5 +11,6 @@ def main():
     data_dict = (Parser.main())
     response_list = Utility.rsync_all(data_dict)
     Utility.print_responses(response_list)
+
 
 main()
