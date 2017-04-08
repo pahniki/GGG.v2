@@ -1,28 +1,25 @@
-import subprocess
-import os
+"""
+Remote request class. 
+Stores the data for each separate remote host.
+Contains a must have methods to provide a comfortable execution for 'rsync' command.
+Response class.
+Used to create an objects as work out results for several functions.
+"""
 import socket
 import time
-from subprocess import PIPE, Popen
 from utility_cls import Utility
-
-logger = Utility.rsynclog.logger_init('remote_request_cls')
 
 # pexpect import
 try:
     import pexpect
 except ImportError as imp_err:
-    # If there is no such module - install pip and pexpect.
-    print(imp_err)
-    try:
-        os.system('sudo apt install python-pip')
-        os.system('sudo python -m pip install pexpect')
-    except:
-        Utility.helper.error_msg(logger, '\'pexpect\' installing error',
-                                 'cannot load pexpect module for your python.', exitcode=1)
+    Utility.pexpert_import(imp_err)
+
+logger = Utility.rsynclog.logger_init('remote_request_cls')
 
 
 class Remote_request():
-    """ Produces objects for each remotehost machine """
+    """ Produces objects for each remote host machine """
     ind = 0
     inst_array = list()
 
@@ -67,18 +64,26 @@ class Remote_request():
                 '   port: {}').format(Remote_request.ind, self.username, self.adress, self.rem_dir, self.password,
                                       self.port))
 
-    def checker(self):
+    def dir_checker(self, username, ip, remote_dir):
         """check if directory exist and create it if so"""
-        dir_check = os.system("ssh {0}@{1} '[ -d {2} ]'".format(self.username, self.adress, self.remote_dir))
-        if not dir_check:
-            os.system("ssh {0}@{1} 'mkdir {2}'".format(self.username, self.adress, self.remote_dir))
+        dir_check_cmd = ['ssh', '{}@{}'.format(username, ip), '[', '-d', remote_dir, ']']
+        out, err, exitcode = Utility.subprocess_cmd(dir_check_cmd)
+        if (exitcode):
+            dir_maker_cmd = ['ssh', '{}@{}'.format(username, ip), 'mkdir', remote_dir]
+            out, err, exitcode = Utility.subprocess_cmd(dir_maker_cmd)
+            if (not exitcode):
+                print("Directory {} was created for host {}".format(remote_dir, ip))
+        else:
+            print("Directory {} exists for host {}".format(remote_dir, ip))
+        print(out)
+        print(err)
+        if (err):
+            return Response(self.short_adress, exitcode, out, err)
 
     def pinger(self):
         """Check connection to remote machine and ssh enable for chosen port"""
-        ping_check = subprocess.Popen(['ping', '-c1', self.adress], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-        out, err = ping_check.communicate()
-        exitcode = ping_check.returncode
-
+        ping_check_cmd = ['ping', '-c2', self.adress]
+        out, err, exitcode = Utility.subprocess_cmd(ping_check_cmd)
         if not exitcode:
             print("Host {} is alive!".format(self.adress))
             s = socket.socket()
@@ -103,18 +108,16 @@ class Remote_request():
         """Provides passwordless ssh connection"""
 
         def sshkeygen(short_adress):
-            """Provides passwordless ssh connection"""
-            command = ['ssh-keygen', '-t', 'rsa', '-q', '-N', '']
-            exec_cmd = Popen(command, stdin=PIPE, stdout=PIPE,
-                             stderr=PIPE)
-            out, err = exec_cmd.communicate()
-            exitcode = exec_cmd.returncode
+            """Executes ssh-keygen cmd and checks the result"""
+            sshkeygen_cmd = ['ssh-keygen', '-t', 'rsa', '-q', '-N', '']
+            out, err, exitcode = Utility.subprocess_cmd(sshkeygen_cmd)
             if ('error' in err.lower()):
                 message = ('\nError: ' + err.split('\n', 1)[0])
                 Utility.helper.error_msg(logger, err, 'ssh-keygen', exitcode=0)
                 return Response(self.short_adress, exitcode, err=message)
 
         def ssh_copy_id(short_adress, password=''):
+            """Copying ssh key to a remote machine. Pexpect module were used for password insertion."""
             child = pexpect.spawn('ssh-copy-id ' + short_adress)
             opt = ['password:', pexpect.EOF]
             while True:
@@ -133,7 +136,6 @@ class Remote_request():
                         return Response(self.short_adress, 1, err='ssh-copy-id error')
                 except pexpect.EOF as eof_err:
                     Utility.helper.error_msg(logger, eof_err, 'pexpect.EOF error', exitcode=0)
-                    # return Response(self.short_adress, 1, err=eof_err)
                 except:
                     Utility.helper.error_msg(logger, 'ssh-copy-id error', 'ssh-copy-id ', exitcode=0)
                     return Response(self.short_adress, 1, err='ssh-copy-id error')
@@ -145,13 +147,43 @@ class Remote_request():
             response = ssh_copy_id(self.short_adress, self.password)
         return response
 
+    def port_to_keys(self, keys_list, port):
+        """ Add '-p port' to a -e params, if port exist """
+        if (port):
+            index = 0
+            key_str = '-e ssh -p {}'.format(port)
+            for item in Utility.gen(keys_list):
+                if (item.startswith('-e')):
+                    index = keys_list.index(item)
+                    keys_list[index] = key_str
+                    break
+            if (not index):
+                keys_list.insert(0, key_str)
+
+        return keys_list
+
     def with_password(self):
+        """Checks if password exist"""
         if (self.password):
             return self.passwordless_con()
 
+    def rsync_cmd_dozens(self, keys_list, files):
+        """Collaborate rsync and all advanced methods."""
+        keys = list()
+        keys.extend(keys_list)
+        keys = self.port_to_keys(keys, self.port)
+        # Execute commands untill an error occur.
+        response = self.pinger()
+        if (not response):
+            response = self.with_password()
+            if (not response):
+                response = self.dir_checker(self.username, self.adress, self.rem_dir)
+                if (not response):
+                    response = self.try_rsync_cmd(keys, files)
+        return response
+
     def try_rsync_cmd(self, keys, files):
         """ try-except for rsync_cmd function """
-        self.with_password()
         try:
             return self.rsync_cmd(keys, files)
         except:
@@ -162,21 +194,19 @@ class Remote_request():
     @rsync_cmd_deco_deco(DEBUG=False)
     def rsync_cmd(self, keys, files):
         """Execute rsync command"""
-        rsync_cmd = subprocess.Popen(['rsync', '-r'] + keys + files + [self.full_adress, ],
-                                     stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-        out, err = rsync_cmd.communicate()
-        exitcode = rsync_cmd.returncode
-
+        rsync_cmd = ['rsync', '-r'] + keys + files + [self.full_adress, ]
+        out, err, exitcode = Utility.subprocess_cmd(rsync_cmd)
         print out
         return Response(self.short_adress, exitcode, out, err)
 
 
 class Response:
+    """Response class to create Objects as a result of work for several functions"""
     index = 0
 
     def __init__(self, remote_host, exitcode, out='', err=''):
         """ Response constructor """
-        self.name = 'ro.{}-{}'.format(str(int(time.time())), str(Response.index))
+        self.name = 'ro.{}-{}'.format(str(int(time.time())), str(Response.index))  # Unique id for each object
         Response.index += 1
         self.remote_host = remote_host
         self.exitcode = exitcode
@@ -189,6 +219,7 @@ class Response:
         return (not self.exitcode and not self.err and not 'exit' in self.out.lower())
 
     def __repr__(self):
+        """Show recorded information"""
         message = 'Response to {}. Success : {}'.format(self.remote_host, str(self.is_success))
         if (self.err):
             message += ('\nError: ' + self.err.split('\n', 1)[0])
