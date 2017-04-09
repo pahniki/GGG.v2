@@ -55,6 +55,7 @@ class Inputparser:
 
     @staticmethod
     def try_get_hosts(some_list):
+        """Try-except for remote hostname parsing method."""
         try:
             return Inputparser.get_hosts(some_list)
         except IndexError as inderr:
@@ -90,11 +91,13 @@ class Inputparser:
 
     @staticmethod
     def is_empty_files(file_list):
+        """Raise error and exit if no files/directories or requests were entered"""
         if (not len(file_list)):
             Utility.helper.error_msg(logger, file_list, 'No Files/directories or requests were entered.')
             
     @staticmethod
     def if_help(is_h):
+        """Shows help and exit after."""
         if (is_h):
             Utility.helper.main_help()
             exit(0)

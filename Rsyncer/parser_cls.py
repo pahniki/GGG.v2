@@ -1,3 +1,7 @@
+"""Parser.
+Uses Inputparser parser to draw user inputs.
+Parses all the incoming data, including 'username:port@remotehost:/directory' constructions.
+"""
 import re
 from inputparser import Inputparser
 from utility_cls import Utility
@@ -7,8 +11,10 @@ logger = Utility.rsynclog.logger_init('parser_cls')
 
 
 class Parser(Inputparser):
-    """Second stage parser. Parsing unknown for 'argparse' parameters 
-        and splits 'username:port@hostname:/dir' into pieces. """
+    """Parser. 
+        Uses inputparser to draw out known for argparse module parameters
+        and then parses unknown for 'argparse' parameters with its own methods. 
+        Also splits 'username:port@hostname:/dir' into pieces. """
 
     @staticmethod
     def keys_parse(input_list):
@@ -25,7 +31,7 @@ class Parser(Inputparser):
 
     @staticmethod
     def try_hostrequest_parse(hostname):
-        """Catches exception during hostrequest_parse"""
+        """Catches exceptions during hostrequest_parse"""
         try:
             return Parser.hostrequest_parse(hostname)
         except:
@@ -60,18 +66,8 @@ class Parser(Inputparser):
         return data_dict_host
 
     @staticmethod
-    def find_hostrequest(some_lis):
-        """  """
-        if (not len(some_lis)):
-            Utility.helper.error_msg(logger, some_lis, 'No File/directories or \'username@hostname:/dir\' parameter:')
-
-        host_dict = Parser.form_dict(some_lis)
-
-        return host_dict
-
-    @staticmethod
-    def form_dict(hostrequest):
-        """ Form a { remoterequest : password } dictionary from a list """
+    def find_hostrequest(hostrequest):
+        """ Forms a {remoterequest:password} type dictionary from a host request list """
         if (len(hostrequest) > 1):
             host_dict = dict()
             pass_len = len('-pass=')
@@ -92,6 +88,7 @@ class Parser(Inputparser):
 
     @staticmethod
     def fill_in_clients(data_dict, hostnamedict):
+        """Put clients into dict."""
         data_dict.update({'client': []})
         for key, item in hostnamedict.iteritems():
             data_dict['client'].append(Remote_request(key, item, Parser.try_hostrequest_parse))

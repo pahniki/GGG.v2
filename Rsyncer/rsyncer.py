@@ -1,8 +1,8 @@
 #!/usr/bin/env python
 
-# Main script , provides a beautiful/userfriendly name for executing our ap.
-from parser_cls import Parser
+# Main script , provides a beautiful/userfriendly name for executing our ap. Also it has main().
 from utility_cls import Utility
+from parser_cls import Parser
 
 logger = Utility.rsynclog.logger_init('main')
 

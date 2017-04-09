@@ -1,5 +1,15 @@
-# utility
+""" Utility.
+Contains useful for programming functions. All it's methods is static and were used during the development process.
+Have 3 sections:
+1. Common utilities.
+Contains useful during development methods.
+2. Rsync Logger.
+Logs the data in 'rsyncer.log' file during application work.
+3. Helper.
+User friendly purposes. Contains usage, help and other helpful for user messages. 
+"""
 import os
+from subprocess import Popen, PIPE
 
 
 class Utility:
@@ -19,44 +29,49 @@ class Utility:
             item.self_print()
 
     @staticmethod
-    def port_to_keys(keys_list, port):
-        """ Add '-p port' to a -e params, if port exist """
-        if (port):
-            index = 0
-            key_str = '-e ssh -p {}'.format(port)
-            for item in Utility.gen(keys_list):
-                if (item.startswith('-e')):
-                    index = keys_list.index(item)
-                    keys_list[index] = key_str
-                    break
-            if (not index):
-                keys_list.insert(0, key_str)
-
-        return keys_list
-
+    def subprocess_cmd(command):
+        exec_cmd = Popen(command, stdin=PIPE, stdout=PIPE, stderr=PIPE)
+        out_msg, err_msg = exec_cmd.communicate()
+        exitcode = exec_cmd.returncode
+        return (out_msg, err_msg, exitcode)
+      
     @staticmethod
     def rsync_all(data_dict):
+        """Executes rsync command for each Client(Remote_request class) object"""
         response_list = list()
         for item in Utility.gen(data_dict['client']):
-            keys = list()
-            keys.extend(data_dict['keys'])
-
-            connection_error = item.pinger()
-            if (not connection_error):
-                keys = Utility.port_to_keys(keys, item.port)
-                response = item.try_rsync_cmd(keys, data_dict['host_files'])
-                response_list.append(response)
-            else:
-                response_list.append(connection_error)
-
+            response = item.rsync_cmd_dozens(data_dict['keys'], data_dict['host_files'])
+            response_list.append(response)
+            
         return response_list
 
     @staticmethod
     def print_responses(response_list):
+        """Prints all the outcomes for rsync operation."""
         logger = Utility.rsynclog.logger_init('print_response')
         for index, item in enumerate(Utility.gen(response_list)):
             print (item)
-            Utility.rsynclog.debug_log(logger,item)
+            Utility.rsynclog.debug_log(logger, item)
+
+    @staticmethod
+    def pexpert_import(imp_err):
+        logger = Utility.rsynclog.logger_init('import pexpect')
+        print(imp_err)
+        positive_answer = ['y', 'ye', 'yo', 'yes', 'yeah', 'yourmum']  # Don't even ask...
+        question = "This application requires an \'pexpect\' module. Do you want to install it for your default python?"
+        answer = str(raw_input(question + ' [yes(y)/no(n)]: ')).lower()
+        if (answer in positive_answer):
+            try:
+                print ('Installing \'pexpect\'module for your default python. Sudo password might be required.')
+                os.system('sudo apt install python-pip')
+                os.system('sudo python -m pip install pexpect')
+            except:
+                print ('Installation error: cannot load \'pexpect\' module for your python.')
+                Utility.rsynclog.info_log(logger, 'Installation error: cannot load \'pexpect\' module for your python.')
+                exit(1)
+        else:
+            print ('See you later!')
+            exit(0)
 
             #########################Logger section#########################
 
@@ -88,6 +103,7 @@ class Utility:
         def debug_log(logger, infostr):
             ''' Log debug message '''
             logger.debug(infostr)
+
             #########################Helper section#########################
 
     class helper:
@@ -126,6 +142,10 @@ class Utility:
 
         @staticmethod
         def error_msg(logger, err_msg, info_msg='', exitcode=1):
+            """Universal error message.
+                Allows u to post messages in both Debug and Info level of logger
+                and exit program if needed.
+                """
             print ('\n### {} :<').format(info_msg)
             if (info_msg):
                 Utility.rsynclog.info_log(logger, info_msg)
