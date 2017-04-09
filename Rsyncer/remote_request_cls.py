@@ -126,11 +126,13 @@ class Remote_request():
                 child.expect('password:', timeout=20)
                 child.sendline(password)
                 child.interact()                
+
             except RuntimeError as runtime_err:
                 Utility.helper.error_msg(logger, runtime_err, 'ssh-copy-id Runtime error', exitcode=0)
                 return Response(self.short_adress, 1, err='ssh-copy-id error')
             except pexpect.EOF as eof_err:
                 pass
+
 
         response = sshkeygen(self.short_adress)
         if (not response):
