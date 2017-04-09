@@ -56,16 +56,18 @@ class Utility:
     @staticmethod
     def pexpert_import(imp_err):
         logger = Utility.rsynclog.logger_init('import pexpect')
-        print(imp_err)
         positive_answer = ['y', 'ye', 'yo', 'yes', 'yeah', 'yourmum']  # Don't even ask...
-        question = "This application requires an \'pexpect\' module. Do you want to install it for your default python?"
-        answer = str(raw_input(question + ' [yes(y)/no(n)]: ')).lower()
+        question_msg = "This application requires a \'pexpect\' module.\n" \
+                       "Do you want to install it for your default python version?"
+        warning_msg = "Warning: You must have a PIP package manager preinstalled on your OS to do that.\nAnswer: "
+        answer = str(raw_input(question_msg + ' [yes(y)/no(n)]\n' + warning_msg)).lower()
         if (answer in positive_answer):
             try:
-                print ('Installing \'pexpect\'module for your default python. Sudo password might be required.')
-                os.system('sudo apt install python-pip')
-                os.system('sudo python -m pip install pexpect')
+                print ('Installing \'pexpect\'module for your python. Sudo password might be required.')
+                pexpect_install_cmd = 'sudo python -m pip install pexpect'.split(' ')
+                out, err, exitcode = Utility.subprocess_cmd(pexpect_install_cmd)
             except:
+                print err
                 print ('Installation error: cannot load \'pexpect\' module for your python.')
                 Utility.rsynclog.info_log(logger, 'Installation error: cannot load \'pexpect\' module for your python.')
                 exit(1)
@@ -73,7 +75,12 @@ class Utility:
             print ('See you later!')
             exit(0)
 
-            #########################Logger section#########################
+    @staticmethod
+    def print_msg(logger, some_str):
+        print (some_str)
+        Utility.rsynclog.info_log(logger, some_str)
+
+        #########################Logger section#########################
 
     class rsynclog:
         '''
