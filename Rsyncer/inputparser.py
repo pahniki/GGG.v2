@@ -94,7 +94,7 @@ class Inputparser:
         """Raise error and exit if no files/directories or requests were entered"""
         if (not len(file_list)):
             Utility.helper.error_msg(logger, file_list, 'No Files/directories or requests were entered.')
-
+            
     @staticmethod
     def if_help(is_h):
         """Shows help and exit after."""

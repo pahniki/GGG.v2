@@ -34,7 +34,7 @@ class Utility:
         out_msg, err_msg = exec_cmd.communicate()
         exitcode = exec_cmd.returncode
         return (out_msg, err_msg, exitcode)
-
+      
     @staticmethod
     def rsync_all(data_dict):
         """Executes rsync command for each Client(Remote_request class) object"""
@@ -42,6 +42,7 @@ class Utility:
         for item in Utility.gen(data_dict['client']):
             response = item.rsync_cmd_dozens(data_dict['keys'], data_dict['host_files'])
             response_list.append(response)
+            
         return response_list
 
     @staticmethod
@@ -71,7 +72,6 @@ class Utility:
         else:
             print ('See you later!')
             exit(0)
-
 
             #########################Logger section#########################
 
@@ -154,3 +154,17 @@ class Utility:
             Utility.helper.usage_help()
             if (exitcode):
                 exit(1)
+
+        @staticmethod
+        def connection_type_help():
+            print('Something goes wrong. Try -e ssh, -e rsh or use help.')
+
+        @staticmethod
+        def multiple_host_help():
+            print('Something goes wrong. Spaces are  necessary after open and before closed brackets.\n'
+                  'For more information use help\n'
+                  'Example: [ username1@remote1 -pass=123 username2@remote2 username3@remote3 -pass=qwe ]')
+
+        @staticmethod
+        def random_help():
+            print('Oops, something goes wrong. Try to use help.')

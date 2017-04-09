@@ -7,6 +7,7 @@ Used to create an objects as work out results for several functions.
 """
 import socket
 import time
+from subprocess import PIPE, Popen
 from utility_cls import Utility
 
 # pexpect import
@@ -17,7 +18,20 @@ except ImportError as imp_err:
 
 logger = Utility.rsynclog.logger_init('remote_request_cls')
 
+# pexpect import
+try:
+    import pexpect
+except ImportError as imp_err:
+    # If there is no such module - install pip and pexpect.
+    print(imp_err)
+    try:
+        os.system('sudo apt install python-pip')
+        os.system('sudo python -m pip install pexpect')
+    except:
+        Utility.helper.error_msg(logger, '\'pexpect\' installing error',
+                                 'cannot load pexpect module for your python.', exitcode=1)
 
+        
 class Remote_request():
     """ Produces objects for each remote host machine """
     ind = 0
@@ -47,7 +61,6 @@ class Remote_request():
                            + '  -pass=' + self.password)
                     res_obj = Response(0)
                     print res_obj
-
                 return wrapper
             else:
                 return func
@@ -181,9 +194,10 @@ class Remote_request():
                 if (not response):
                     response = self.try_rsync_cmd(keys, files)
         return response
-
+      
     def try_rsync_cmd(self, keys, files):
         """ try-except for rsync_cmd function """
+        self.with_password()
         try:
             return self.rsync_cmd(keys, files)
         except:

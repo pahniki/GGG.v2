@@ -6,7 +6,6 @@ from parser_cls import Parser
 
 logger = Utility.rsynclog.logger_init('main')
 
-
 def main():
     Utility.rsynclog.info_log(logger, '\n###Rsyncer.py start.###')
     data_dict = (Parser.main())
