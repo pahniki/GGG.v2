@@ -17,7 +17,15 @@ except ImportError as imp_err:
 
 logger = Utility.rsynclog.logger_init('remote_request_cls')
 
+# pexpect import
+try:
+    import pexpect
+except ImportError as imp_err:
+    Utility.pexpert_import(imp_err)
 
+logger = Utility.rsynclog.logger_init('remote_request_cls')
+
+        
 class Remote_request():
     """ Produces objects for each remote host machine """
     ind = 0
@@ -78,6 +86,7 @@ class Remote_request():
             Utility.print_msg(logger, "Directory {} exists for host {}".format(remote_dir, ip))
         if (err):
             Utility.print_msg(logger, err)
+
             return Response(self.short_adress, exitcode, out, err)
 
     def pinger(self):
@@ -95,7 +104,7 @@ class Remote_request():
         """Provides passwordless ssh connection"""
         self.home_path = os.environ['HOME']
 
-        def passwordless_con(short_adress):
+        def sshkeygen(short_adress):
             """Provides passwordless ssh connection"""
             Utility.print_msg(logger, 'using ssh-keygen to create a key')
             path = self.home_path + '/.ssh/id_rsa'
@@ -120,7 +129,7 @@ class Remote_request():
             except pexpect.EOF as eof_err:
                 print ('Havn\'t seen anything')
 
-        response = passwordless_con(self.short_adress)
+        response = sshkeygen(self.short_adress)
         if (not response):
             response = ssh_copy_id(self.short_adress, self.__password)
         return response
@@ -142,7 +151,7 @@ class Remote_request():
 
     def with_password(self):
         """Checks if password exist"""
-        if (self.__password):
+        if (self.__password)
             return self.passwordless_con()
 
     def rsync_cmd_dozens(self, keys_list, files):

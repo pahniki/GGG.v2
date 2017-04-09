@@ -34,7 +34,7 @@ class Utility:
         out_msg, err_msg = exec_cmd.communicate()
         exitcode = exec_cmd.returncode
         return (out_msg, err_msg, exitcode)
-
+      
     @staticmethod
     def rsync_all(data_dict):
         """Executes rsync command for each Client(Remote_request class) object"""
@@ -42,7 +42,7 @@ class Utility:
         for item in Utility.gen(data_dict['client']):
             response = item.rsync_cmd_dozens(data_dict['keys'], data_dict['host_files'])
             response_list.append(response)
-
+            
         return response_list
 
     @staticmethod
