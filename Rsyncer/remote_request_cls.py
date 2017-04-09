@@ -75,9 +75,12 @@ class Remote_request():
 
     def dir_checker(self, username, ip, remote_dir):
         """check if directory exist and create it if so"""
+        Utility.print_msg(logger,'Checking if directory exist,' \
+                          'password could be required for that.')
         dir_check_cmd = ['ssh', '{}@{}'.format(username, ip), '[', '-d', remote_dir, ']']
         out, err, exitcode = Utility.subprocess_cmd(dir_check_cmd)
         if (exitcode):
+            Utility.print_msg(logger,'Creating remote dirrectory.')
             dir_maker_cmd = ['ssh', '{}@{}'.format(username, ip), 'mkdir', remote_dir]
             out, err, exitcode = Utility.subprocess_cmd(dir_maker_cmd)
             if (not exitcode):
@@ -110,7 +113,7 @@ class Remote_request():
             path = self.home_path + '/.ssh/id_rsa'
             sshkeygen_cmd = ['ssh-keygen', '-f', path, '-t', 'rsa', '-q', '-N', '']
             out, err, exitcode = Utility.subprocess_cmd(sshkeygen_cmd)
-            print (exitcode, out, err)
+            print (exitcode, out)
             if ('error' in err.lower()):
                 message = ('\nError: ' + err.split('\n', 1)[0])
                 Utility.helper.error_msg(logger, err, 'ssh-keygen', exitcode=0)
@@ -122,12 +125,14 @@ class Remote_request():
                 child = pexpect.spawn('ssh-copy-id -i ' + path + ' ' + short_adress)
                 child.expect('password:', timeout=20)
                 child.sendline(password)
-                child.interact()
+                child.interact()                
+
             except RuntimeError as runtime_err:
                 Utility.helper.error_msg(logger, runtime_err, 'ssh-copy-id Runtime error', exitcode=0)
                 return Response(self.short_adress, 1, err='ssh-copy-id error')
             except pexpect.EOF as eof_err:
-                print ('Havn\'t seen anything')
+                pass
+
 
         response = sshkeygen(self.short_adress)
         if (not response):

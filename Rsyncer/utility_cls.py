@@ -98,7 +98,7 @@ class Utility:
                 os.mkdir('/tmp/Rsyncer/')
             except:
                 pass
-            handler = logging.FileHandler('/tmp/Rsyncer/rsyncer.log'))
+            handler = logging.FileHandler('/tmp/Rsyncer/rsyncer.log')
             formatter = logging.Formatter('[%(asctime)s] - %(name)11s - %(levelname)6s : %(message)s',
                                           datefmt='%d-%m-%y %H:%M')
             handler.setFormatter(formatter)
@@ -165,3 +165,17 @@ class Utility:
             Utility.helper.usage_help()
             if (exitcode):
                 exit(1)
+
+        @staticmethod
+        def connection_type_help():
+            print('Something goes wrong. Try -e ssh, -e rsh or use help.')
+
+        @staticmethod
+        def multiple_host_help():
+            print('Something goes wrong. Spaces are  necessary after open and before closed brackets.\n'
+                  'For more information use help\n'
+                  'Example: [ username1@remote1 -pass=123 username2@remote2 username3@remote3 -pass=qwe ]')
+
+        @staticmethod
+        def random_help():
+            print('Oops, something goes wrong. Try to use help.')
