@@ -151,7 +151,7 @@ class Remote_request():
 
     def with_password(self):
         """Checks if password exist"""
-        if (self.__password)
+        if (self.__password):
             return self.passwordless_con()
 
     def rsync_cmd_dozens(self, keys_list, files):
@@ -171,7 +171,6 @@ class Remote_request():
 
     def try_rsync_cmd(self, keys, files):
         """ try-except for rsync_cmd function """
-        self.with_password()
         try:
             return self.rsync_cmd(keys, files)
         except:
