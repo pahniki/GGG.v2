@@ -13,7 +13,7 @@ Should check if path exists on remote host and if not then create it.
 Features: 
 
 Multiple remote host request with optional passwords for each. <br />
-All invalid command keys will be ignored by this application.
+All invalid command keys will be ignored by this application. <br />
 All logs are stored in '/tmp/Rsyncer/rsyncer.log'
 
 Usage.
