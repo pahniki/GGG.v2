@@ -87,7 +87,11 @@ class Utility:
             logger = logging.getLogger(some_str)
             logger.setLevel(logging.INFO)
             logger.setLevel(logging.DEBUG)
-            handler = logging.FileHandler('rsyncer.log')
+            try:
+                os.mkdir('/tmp/Rsyncer/')
+            except:
+                pass
+            handler = logging.FileHandler('/tmp/Rsyncer/rsyncer.log')
             formatter = logging.Formatter('[%(asctime)s] - %(name)11s - %(levelname)6s : %(message)s',
                                           datefmt='%d-%m-%y %H:%M')
             handler.setFormatter(formatter)
